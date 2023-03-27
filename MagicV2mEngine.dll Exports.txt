@@ -1,0 +1,129 @@
+MagicV2mEngine.dll Exports:
+---------------------------
+
+so you can use this DLL in other languages : Assembly,PowerBasic,...
+
+Exports :
+
+V2mPlayFile
+V2mPlayStream
+V2mPlayResource
+V2mStop
+V2mSetAutoRepeat
+V2mGetTime
+V2mTotalTime
+V2mIsPlay
+
+
+VC++
+================================================================================
+typedef void(_stdcall *V2MPLAYFILE)(LPSTR,bool);
+typedef void(_stdcall *V2MPLAYSTREAM)(const unsigned char*,bool);
+typedef void(_stdcall *V2MPLAYRESOURCE)(HMODULE,LPSTR,LPSTR,bool);
+typedef void(_stdcall *V2MSTOP)(void);
+typedef void(_stdcall *V2MSETAUTOREPEAT)(bool);
+typedef DWORD (_stdcall *V2MGETTIME)(void);
+typedef DWORD (_stdcall *V2MTOTALTIME)(void);
+typedef bool  (_stdcall *V2MISPLAY)(void);
+
+V2MPLAYFILE V2mPlayFile;
+V2MPLAYSTREAM V2mPlayStream;
+V2MPLAYRESOURCE V2mPlayResource;
+V2MSTOP V2mStop;
+V2MSETAUTOREPEAT V2mSetAutoRepeat;
+V2MGETTIME V2mGetTime;
+V2MTOTALTIME V2mTotalTime;
+V2MISPLAY V2mIsPlay;
+HINSTANCE hInst;
+bool V2mLoaded=FALSE;
+
+hInst = LoadLibrary("MagicV2mEngine.dll");
+if (hInst !=NULL) V2mLoaded=TRUE;
+V2mPlayFile = (V2MPLAYFILE)GetProcAddress(hInst,"V2mPlayFile");
+V2mPlayStream = (V2MPLAYSTREAM)GetProcAddress(hInst,"V2mPlayStream");
+V2mPlayResource = (V2MPLAYRESOURCE)GetProcAddress(hInst,"V2mPlayResource");
+V2mStop = (V2MSTOP)GetProcAddress(hInst,"V2mStop");
+V2mSetAutoRepeat = (V2MSETAUTOREPEAT)GetProcAddress(hInst,"V2mSetAutoRepeat");
+V2mGetTime = (V2MGETTIME)GetProcAddress(hInst,"V2mGetTime");
+V2mTotalTime = (V2MTOTALTIME)GetProcAddress(hInst,"V2mTotalTime");
+V2mIsPlay = (V2MISPLAY)GetProcAddress(hInst,"V2mIsPlay");
+
+
+//example:
+
+if (V2mLoaded) {
+ V2mPlayFile("test.v2m",TRUE);
+ MessageBox(0,"Playing","Playing",0);
+ V2mStop();
+}
+ExitProcess(0);
+
+
+
+C#:
+================================================================================
+using System.Runtime.InteropServices;
+using System.Reflection;
+using System.Resources;
+using System.IO;
+
+[DllImport("MagicV2mEngine.dll")]
+static extern void V2mPlayFile(string FName, bool AuRepeat);
+
+[DllImport("MagicV2mEngine.dll")]
+static extern void V2mPlayStream(byte[] VData, bool AuRepeat);
+
+[DllImport("MagicV2mEngine.dll")]
+static extern void V2mStop();
+
+[DllImport("MagicV2mEngine.dll")]
+static extern void V2mSetAutoRepeat(bool AuRepeat);
+
+[DllImport("MagicV2mEngine.dll")]
+static extern int V2mGetTime();
+
+[DllImport("MagicV2mEngine.dll")]
+static extern int V2mTotalTime();
+
+[DllImport("MagicV2mEngine.dll")]
+static extern bool V2mIsPlay();
+
+static void V2mPlayResource(string AppNameSpace, string V2m, bool AuRepeat)
+{
+    Stream ResData = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(AppNameSpace + "." + V2m);
+    if ( ResData == null ) return;
+    byte[] V2mData = new Byte[ResData.Length];
+    ResData.Read(V2mData, 0, (int)ResData.Length);
+    V2mPlayStream(V2mData, AuRepeat);
+}
+
+
+//examples:
+
+V2mPlayResource("WindowsApplication1", "test.v2m", true);
+V2mPlayFile("test.v2m", true);
+
+
+
+VB:
+================================================================================
+Public Declare Sub V2mPlayFile Lib "MagicV2mEngine.dll" (ByVal FileName As String, ByVal AuRepeat As Boolean)
+Public Declare Sub V2mPlayStream Lib "MagicV2mEngine.dll" (ByVal VData As Long, ByVal AuRepeat As Boolean)
+Public Declare Sub V2mPlayResource Lib "MagicV2mEngine.dll" (ByVal hInst As Long, ByVal ResName As Long, ByVal ResType As String, ByVal AuRepeat As Boolean)
+Public Declare Sub V2mStop Lib "MagicV2mEngine.dll" ()
+Public Declare Sub V2mSetAutoRepeat Lib "MagicV2mEngine.dll" (ByVal AuRepeat As Boolean)
+Public Declare Function V2mGetTime Lib "MagicV2mEngine.dll" () As Long
+Public Declare Function V2mTotalTime Lib "MagicV2mEngine.dll" () As Long
+Public Declare Function V2mIsPlay Lib "MagicV2mEngine.dll" () As Boolean
+
+
+Delphi:
+================================================================================
+procedure V2mPlayFile(FName:Pchar; AuRepeat:Bool); stdcall; external 'MagicV2mEngine.dll' name 'V2mPlayFile';
+procedure V2mPlayStream(VData:Pchar; AuRepeat:Bool); stdcall; external 'MagicV2mEngine.dll' name 'V2mPlayStream';
+procedure V2mPlayResource(hInst:Longint; ResName, ResType:Pchar; AuRepeat:Bool); stdcall; external 'MagicV2mEngine.dll' name 'V2mPlayResource';
+procedure V2mStop; stdcall; external 'MagicV2mEngine.dll' name 'V2mStop';
+procedure V2mSetAutoRepeat(AuRepeat:Bool); stdcall; external 'MagicV2mEngine.dll' name 'V2mSetAutoRepeat';
+function  V2mGetTime:Longint; stdcall; external 'MagicV2mEngine.dll' name 'V2mGetTime';
+function  V2mTotalTime:Longint; stdcall; external 'MagicV2mEngine.dll' name 'V2mTotalTime';
+function  V2mIsPlay:Bool; stdcall; external 'MagicV2mEngine.dll' name 'V2mIsPlay';
